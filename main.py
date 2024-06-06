@@ -1,11 +1,41 @@
 from flask import Flask, request, jsonify, send_from_directory
 import requests
-import json
+import psycopg2
 import os
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
 API_KEY = "790975a2bf27f7201ad4b899a7631fc3"
+
+
+def get_db_connection():
+    conn = psycopg2.connect(
+        dbname='weather_db',
+        user='weather_user',
+        password='talpass',
+        host='localhost',
+        port='5432'
+    )
+    return conn
+
+
+def create_table():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS weather (
+            id SERIAL PRIMARY KEY,
+            city VARCHAR(255),
+            temperature_celsius FLOAT,
+            weather_condition VARCHAR(255),
+            wind_speed_kmh FLOAT,
+            wind_direction FLOAT
+        )
+    ''')
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 
 def get_weather_by_city(city, api_key):
@@ -32,27 +62,23 @@ def get_wind(weather_data):
 
 
 def save_weather_data(city, weather_data):
-    data_to_save = {
-        "city": city,
-        "temperature_celsius": get_temperature(weather_data),
-        "weather_condition": get_weather_condition(weather_data),
-        "wind_speed_kmh": get_wind(weather_data)[0],
-        "wind_direction": get_wind(weather_data)[1]
-    }
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
-    existing_data = []
+    cursor.execute('''
+        INSERT INTO weather (city, temperature_celsius, weather_condition, wind_speed_kmh, wind_direction)
+        VALUES (%s, %s, %s, %s, %s)
+    ''', (
+        city,
+        get_temperature(weather_data),
+        get_weather_condition(weather_data),
+        get_wind(weather_data)[0],
+        get_wind(weather_data)[1]
+    ))
 
-    if os.path.exists("data.json"):
-        try:
-            with open("data.json", "r") as json_file:
-                existing_data = json.load(json_file)
-        except json.JSONDecodeError:
-            print("Warning: 'data.json' is empty or contains invalid JSON. Starting with an empty list.")
-
-    existing_data.append(data_to_save)
-
-    with open("data.json", "w") as json_file:
-        json.dump(existing_data, json_file, indent=4)
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 
 @app.route('/')
@@ -84,4 +110,5 @@ def weather():
 
 
 if __name__ == "__main__":
+    create_table()
     app.run(host='0.0.0.0', debug=True, port=8081)
