@@ -1,0 +1,25 @@
+version: '3'
+services:
+  weather-app:
+    image: tal5041996/weather-app
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_DB_HOST: mongodb
+      MONGO_DB_PORT: 27017
+      MONGO_DB_NAME: weather_db
+      MONGO_DB_USER: weather_user
+      MONGO_DB_PASS: talpass
+  
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: weather_user
+      MONGO_INITDB_ROOT_PASSWORD: talpass
+      MONGO_INITDB_DATABASE: weather_db
+    volumes:
+      - /users/tal_halias/mongodb_data:/data/db
