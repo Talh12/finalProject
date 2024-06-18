@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-casc
+  namespace: default
+data:
+  jenkins-casc.yaml: |
+    (Paste the content of jenkins-casc.yaml here)
