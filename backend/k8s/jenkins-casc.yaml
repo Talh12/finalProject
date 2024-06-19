@@ -10,7 +10,7 @@ jenkins:
       allowAnonymousRead: false
   unclassified:
     location:
-      url: http://localhost:8080/
+      url: http://localhost:30000/
   tool:
     git:
       installations:
