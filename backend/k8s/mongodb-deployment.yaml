@@ -1,10 +1,9 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: mongodb
   namespace: database
 spec:
-  serviceName: mongodb-service
   replicas: 1
   selector:
     matchLabels:
@@ -19,12 +18,7 @@ spec:
           image: mongo:latest
           ports:
             - containerPort: 27017
-          volumeMounts:
-            - name: mongodb-data
-              mountPath: /data/db
           env:
-            - name: MONGO_INITDB_DATABASE
-              value: weather-db
             - name: MONGO_INITDB_ROOT_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -35,20 +29,21 @@ spec:
                 secretKeyRef:
                   name: mongodb-secret
                   key: password
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
       volumes:
         - name: mongodb-data
-          persistentVolumeClaim:
-            claimName: mongodb-pvc
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongodb-service
+  name: mongodb
   namespace: database
 spec:
   selector:
     app: mongodb
   ports:
-    - protocol: TCP
-      port: 27017
+    - port: 27017
       targetPort: 27017
