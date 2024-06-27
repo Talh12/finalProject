@@ -1,3 +1,5 @@
+# STILL WORKING ON THIS PRJOECT 
+
 # ApiWeatherApp
 This project implements a Python Flask application that leverages an API to retrieve real-time weather data from around the globe. The application provides a user-friendly interface to access weather information conveniently.
 
