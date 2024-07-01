@@ -1,6 +1,10 @@
+import sys
+import os
 import pytest
 from unittest.mock import patch, MagicMock
-from main import get_weather_by_city, get_temperature, get_weather_condition, get_wind, save_weather_data
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
+
+from app.main import get_weather_by_city, get_temperature, get_weather_condition, get_wind, save_weather_data
 
 # Mock data for testing
 weather_data_example = {
@@ -10,7 +14,7 @@ weather_data_example = {
 }
 
 # Test get_weather_by_city function
-@patch('main.requests.get')
+@patch('app.main.requests.get')
 def test_get_weather_by_city(mock_get):
     mock_response = MagicMock()
     mock_response.json.return_value = weather_data_example
@@ -39,7 +43,7 @@ def test_get_wind():
     assert result == (18, 90)  # 5 m/s * 3.6 = 18 km/h, 90 degrees
 
 # Test save_weather_data function
-@patch('main.get_db_connection')
+@patch('app.main.get_db_connection')
 def test_save_weather_data(mock_get_db_connection):
     mock_db = MagicMock()
     mock_get_db_connection.return_value = mock_db

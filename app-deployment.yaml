@@ -4,6 +4,7 @@ metadata:
   name: weather-app
   namespace: default
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: weather-app
@@ -13,23 +14,23 @@ spec:
         app: weather-app
     spec:
       containers:
-      - name: weather-app
-        image: tal5041996/weather-app:latest
-        ports:
-        - containerPort: 8081
-        env:
-        - name: MONGO_URI
-          value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb.database.svc.cluster.local:27017/weather-db"
-        - name: MONGO_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: mongodb-secret
-              key: username
-        - name: MONGO_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mongodb-secret
-              key: password
+        - name: weather-app
+          image: tal5041996/weather-app:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: API_KEY
+              value: "790975a2bf27f7201ad4b899a7631fc3"
+            - name: MONGO_HOST
+              value: "mongodb.database.svc.cluster.local"
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_DB
+              value: "weather_db"
+            - name: MONGO_USER
+              value: "admin"
+            - name: MONGO_PASSWORD
+              value: "password"
 ---
 apiVersion: v1
 kind: Service
@@ -40,5 +41,7 @@ spec:
   selector:
     app: weather-app
   ports:
-  - port: 8081
-    targetPort: 8081
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+  type: NodePort

@@ -1,5 +1,6 @@
-__pycache__/
+__pycache__
 .pytest_cache
 .venv
 add_readme.sh
 dirs.sh
+.DS_Store

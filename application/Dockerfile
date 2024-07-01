@@ -5,15 +5,15 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py .
-COPY index.html .
+COPY app/main.py .
+COPY app/index.html .
 
 EXPOSE 8081
 
-ENV MONGO_DB_HOST=host.docker.internal \
-    MONGO_DB_PORT=27017 \
-    MONGO_DB_NAME=weather_db \
-    MONGO_DB_USER=weather_user \
-    MONGO_DB_PASS=talpass
+ENV MONGO_HOST=host.docker.internal \
+    MONGO_PORT=27017 \
+    MONGO_DB=weather_db \
+    MONGO_USER=weather_user \
+    MONGO_PASSWORD=talpass
 
 CMD ["python", "main.py"]

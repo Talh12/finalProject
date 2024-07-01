@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "weather-app.fullname" . }}
+  labels:
+    app: {{ include "weather-app.name" . }}
+spec:
+  type: NodePort
+  ports:
+    - port: 8081
+      targetPort: 8081
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ include "weather-app.name" . }}

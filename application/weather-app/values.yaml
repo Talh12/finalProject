@@ -1,0 +1,17 @@
+replicaCount: 1
+
+image:
+  repository: your-docker-repo/weather-app
+  tag: latest
+  pullPolicy: Always
+
+mongo:
+  host: mongodb.database   
+  port: 30721              
+  database: weather_db   
+  username: weather_user   
+  password: talpass        
+
+service:
+  type: NodePort
+  port: 8081

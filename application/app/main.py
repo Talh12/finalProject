@@ -5,31 +5,50 @@ import os
 
 app = Flask(__name__)
 
-API_KEY = "790975a2bf27f7201ad4b899a7631fc3"
+API_KEY = os.getenv("API_KEY", "790975a2bf27f7201ad4b899a7631fc3")  
+MONGO_HOST = os.getenv("MONGO_HOST", "mongodb")
+MONGO_PORT = os.getenv("MONGO_PORT", 27017)
+MONGO_DB = os.getenv("MONGO_DB", "weather_db")
+MONGO_USER = os.getenv("MONGO_USER", "admin")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "password")
 
 def get_db_connection():
-    client = MongoClient('mongodb://localhost:27017/')
-    db = client['weather_db']
+    client = MongoClient(f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/?authSource=admin")
+    db = client[MONGO_DB]
     return db
 
 def get_weather_by_city(city, api_key):
-    base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    complete_url = f"{base_url}appid={api_key}&q={city}"
-    response = requests.get(complete_url)
-    return response.json()
+    base_url = "http://api.openweathermap.org/data/2.5/weather"
+    params = {
+        "q": city,
+        "appid": api_key,
+    }
+    try:
+        response = requests.get(base_url, params=params)
+        response.raise_for_status()  
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching weather data for {city}: {e}")
+        return None
 
 def get_temperature(weather_data):
-    kelvin = weather_data['main']['temp']
-    celsius = kelvin - 273.15
-    return celsius
+    if weather_data and 'main' in weather_data and 'temp' in weather_data['main']:
+        kelvin = weather_data['main']['temp']
+        celsius = kelvin - 273.15
+        return celsius
+    return None
 
 def get_weather_condition(weather_data):
-    return weather_data['weather'][0]['main']
+    if weather_data and 'weather' in weather_data and len(weather_data['weather']) > 0:
+        return weather_data['weather'][0]['main']
+    return None
 
 def get_wind(weather_data):
-    speed_kmh = weather_data['wind']['speed'] * 3.6
-    direction = weather_data['wind']['deg']
-    return speed_kmh, direction
+    if weather_data and 'wind' in weather_data:
+        speed_kmh = weather_data['wind']['speed'] * 3.6
+        direction = weather_data['wind'].get('deg', 0)  
+        return speed_kmh, direction
+    return None, None
 
 def save_weather_data(city, weather_data):
     db = get_db_connection()
@@ -55,7 +74,7 @@ def weather():
 
     city_weather = get_weather_by_city(city, API_KEY)
 
-    if city_weather.get("cod") != 200:
+    if not city_weather or city_weather.get("cod") != 200:
         return jsonify({"error": "City not found or API request failed."}), 404
 
     weather_data = {

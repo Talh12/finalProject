@@ -38,7 +38,7 @@ kubectl apply -f mongo-secret.yaml -n database
 Connect to MongoDB using mongosh CLI
 
 ```
-mongosh --host <mongodb-service-ip> --port <mongodb-service-port> --username admin --password password --authenticationDatabase admin
+kubectl exec -it mongodb-876bf4889-2nt7n -n database -- mongosh --host localhost --port 27017 -u <username> -p <password> --authenticationDatabase admin
 ```
 
 this is what you should see 
