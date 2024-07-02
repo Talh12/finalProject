@@ -1,20 +1,20 @@
 pipeline {
     agent {
         kubernetes {
-            inheritFrom 'dind-agent'
-            yamlFile 'application/jenkins-agent.yaml'
-            defaultContainer 'dind'
+            label 'dind-agent' // Use the label defined in your pod template
+            defaultContainer 'dind' // Set the default container if specified in the pod template
+            yamlFile 'application/jenkins-agent.yaml' // Path to your Kubernetes pod template YAML file
         }
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-cred')
-        GITHUB_CREDENTIALS = credentials('tal-github')
-        DOCKER_IMAGE = 'tal5041996/weather-app'
-        DOCKER_TAG = 'latest'
-        FEATURE_BRANCH = 'feature-branch'
-        MAIN_BRANCH = 'main'
-        REPO_URL = 'https://github.com/Talh12/finalProject.git'
+        DOCKERHUB_CREDENTIALS = credentials('docker-cred') 
+        GITHUB_CREDENTIALS = credentials('tal-github')       
+        DOCKER_IMAGE = 'tal5041996/weather-app'             
+        DOCKER_TAG = 'latest'                                           
+        FEATURE_BRANCH = 'feature-branch'                               
+        MAIN_BRANCH = 'main'                                            
+        REPO_URL = 'https://github.com/Talh12/finalProject.git'     
     }
 
     stages {
