@@ -44,18 +44,20 @@ jobs:
 
       - name: Commit and Push changes to GitHub
         run: |
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git
           git fetch origin
           git add .
           git diff-index --quiet HEAD || git commit -m "Automated commit by GitHub Actions"
           git push origin feature
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
 
       - name: Merge feature into main
         run: |
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git
           git checkout main
           git pull origin main
           git merge feature
           git push origin main
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
