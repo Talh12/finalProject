@@ -25,25 +25,25 @@ helm repo update
 Create a namespace for Prometheus :
 
 ```
-kubectl create namespace observation
+kubectl create namespace monitoring
 ```
 Install Prometheus using Helm:
 
 ```
-helm install prometheus prometheus-community/prometheus -n observation
+helm install prometheus prometheus-community/prometheus -n monitoring
 ```
 ## 2. Verify Prometheus Installation
 Wait for all Prometheus components to be up and running. Check the pod status to ensure everything is deployed correctly:
 
 ```
-kubectl get pods -n observation -l app=prometheus
+kubectl get pods -n monitoring -l app=prometheus
 ```
 ## 3. Access Prometheus Web UI
 
 To access the Prometheus web interface locally, set up port forwarding:
 
 ```
-kubectl port-forward svc/prometheus-server -n observation 9090:80
+kubectl port-forward svc/prometheus-server -n monitoring 9090:80
 ```
 Now, open your web browser and go to http://localhost:9090 to access the Prometheus UI.
 
@@ -61,14 +61,14 @@ Deploy Grafana
 Install Grafana using Helm:
 
 ```
-helm install grafana grafana/grafana -n observation
+helm install grafana grafana/grafana -n monitoring
 ```
 
 ## 5. Verify Grafana Installation
 Wait for all Grafana components to be up and running. Check the pod status to ensure everything is deployed correctly:
 
 ```
-kubectl get pods -n observation -l app.kubernetes.io/name=grafana
+kubectl get pods -n monitoring -l app.kubernetes.io/name=grafana
 ```
 ## 6. access grafana dashboard
 
@@ -77,7 +77,7 @@ Retrieve Grafana Admin Password
 Retrieve the default admin password for Grafana:
 
 ```
-kubectl get secret --namespace observation grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
 
 Access Grafana Web UI
@@ -85,7 +85,7 @@ Access Grafana Web UI
 To access the Grafana web interface locally, set up port forwarding:
 
 ```
-kubectl port-forward svc/grafana -n observation 3000:80
+kubectl port-forward svc/grafana -n monitoring 3000:80
 ```
 Now, open your web browser and go to http://localhost:3000 to access the Grafana login page. Use admin as the username and the password retrieved earlier to log in.
 ![](images/grafana1.png)

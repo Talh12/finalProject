@@ -16,5 +16,5 @@ spec:
   volumes:
     - name: docker-socket
       hostPath:
-        path: /var/run/docker.sock
+        path: Users/tal_halias/.docker/run/docker.sock
         type: Socket
