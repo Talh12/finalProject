@@ -1,11 +1,5 @@
 pipeline {
-    agent {
-        kubernetes {
-            label 'dind-agent' // Use the label defined in your pod template
-            defaultContainer 'dind' // Set the default container if specified in the pod template
-            yamlFile 'application/jenkins-agent.yaml' // Path to your Kubernetes pod template YAML file
-        }
-    }
+    agent any
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('docker-cred') 
@@ -18,6 +12,12 @@ pipeline {
     }
 
     stages {
+        stage('Checkout code') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
