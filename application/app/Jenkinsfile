@@ -1,16 +1,16 @@
 pipeline {
     agent {
         kubernetes {
-            inheritFrom 'dind-agent'
-            yamlFile 'application/jenkins-agent.yaml'
+            label 'dind-agent'
+            yamlFile 'jenkins-agent.yaml'
             defaultContainer 'ez-docker-helm-build'
         }
     }
-    
+
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-cred')
-        GITHUB_CREDENTIALS = credentials('tal-github')
         DOCKER_IMAGE = 'tal5041996/weather-app'
+        DOCKERHUB_CREDENTIALS = 'docker-cred'
+        GITHUB_CREDENTIALS = 'tal-github'
         DOCKER_TAG = 'latest'
         FEATURE_BRANCH = 'feature-branch'
         MAIN_BRANCH = 'main'
@@ -75,5 +75,19 @@ pipeline {
                 }
             }
         }
-    }   
+
+        stage('Clean Up') {
+            steps {
+                deleteDir()
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                currentBuild.result = 'SUCCESS'
+            }
+        }
+    }
 }
