@@ -2,7 +2,7 @@ pipeline {
     agent {
         kubernetes {
             inheritFrom 'dind-agent'
-            yamlFile 'jenkins-agent.yaml'
+            yamlFile 'application/jenkins-agent.yaml'
             defaultContainer 'ez-docker-helm-build'
         }
     }
@@ -17,12 +17,6 @@ pipeline {
         REPO_URL = 'https://github.com/Talh12/finalProject.git'
     }
 
-    stages {
-        stage("Checkout code") {
-            steps {
-                checkout scm
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
