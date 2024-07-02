@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            label 'dind-agent'
+            inheritFrom 'dind-agent'
             yamlFile 'application/jenkins-agent.yaml'
             defaultContainer 'ez-docker-helm-build'
         }
