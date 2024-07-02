@@ -33,7 +33,7 @@ jobs:
 
       - name: Test with Docker Compose
         run: |
-          docker-compose -f ./application/docker-compose.yml up --abort-on-container-exit --exit-code-from app
+          docker-compose -f ./application/docker-compose.yaml up --abort-on-container-exit --exit-code-from app
 
       - name: Push changes to GitHub
         uses: ad-m/github-push-action@master
