@@ -1,9 +1,9 @@
 pipeline {
     agent {
         kubernetes {
+            label 'dind-agent'
             yamlFile 'application/jenkins-agent.yaml'
             defaultContainer 'dind'
-            inheritFrom 'dind-agent'
         }
     } 
 
@@ -19,18 +19,12 @@ pipeline {
 
     stages {
         stage("Checkout code") {
-            agent {
-                label 'dind-agent'
-            }
             steps {
                 checkout scm
             }
         }
 
         stage('Build Docker Image') {
-            agent {
-                label 'dind-agent'
-            }
             steps {
                 script {
                     docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
@@ -39,9 +33,6 @@ pipeline {
         }
 
         stage('Push Docker Image to Docker Hub') {
-            agent {
-                label 'dind-agent'
-            }
             steps {
                 script {
                     docker.withRegistry('https://docker.io', DOCKERHUB_CREDENTIALS) {
@@ -52,9 +43,6 @@ pipeline {
         }
 
         stage('Run Tests') {
-            agent {
-                label 'dind-agent'
-            }
             steps {
                 script {
                     sh 'docker-compose up --build --abort-on-container-exit'
@@ -63,9 +51,6 @@ pipeline {
         }
 
         stage('Push Code to GitHub') {
-            agent {
-                label 'dind-agent'
-            }
             steps {
                 script {
                     sh """
@@ -82,9 +67,6 @@ pipeline {
         }
 
         stage('Create Pull Request') {
-            agent {
-                label 'dind-agent'
-            }
             steps {
                 script {
                     sh """
@@ -98,7 +80,6 @@ pipeline {
     post {
         always {
             echo 'Finished pushing changes to GitHub'
-            cleanWs()
         }
     }
 }
