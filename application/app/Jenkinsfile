@@ -2,13 +2,12 @@ pipeline {
     agent {
         kubernetes {
             label 'dind-agent'
-            yamlFile 'jenkins-agent.yaml'
+            yamlFile 'application/jenkins-agent.yaml' 
             defaultContainer 'dind'
         }
     } 
 
     environment {
-        
         DOCKERHUB_CREDENTIALS = credentials('docker-cred') 
         GITHUB_CREDENTIALS = credentials('tal-github')       
         DOCKER_IMAGE = 'tal5041996/weather-app'             
@@ -36,7 +35,7 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://docker.io', env.DOCKERHUB_CREDENTIALS) {
+                    docker.withRegistry('https://docker.io', DOCKERHUB_CREDENTIALS) {
                         docker.image("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
                     }
                 }
@@ -80,7 +79,9 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            node { 
+                cleanWs()
+            }
         }
     }
 }
