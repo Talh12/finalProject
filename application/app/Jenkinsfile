@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            label 'docker'  // Specify the label of your Jenkins agent here
+            label 'docker'  // Ensure your Jenkins agent is labeled with 'docker'
             defaultContainer 'dind'  // Default container specified in your YAML
             yaml """
 apiVersion: v1
@@ -127,7 +127,7 @@ spec:
     post {
         always {
             echo 'Finished pushing changes to GitHub'
-            cleanWs()
+            cleanWs()  // Ensure Jenkins can clean up the workspace
         }
     }
 }
