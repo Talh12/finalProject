@@ -1,57 +1,48 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
     branches:
-      - feature
-      - main
+      - feature-branch
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
-    env:
-      DOCKER_IMAGE: 'tal5041996/weather-app'
-      DOCKER_TAG: 'latest'
-      FEATURE_BRANCH: 'feature-branch'
-      MAIN_BRANCH: 'main'
-      REPO_URL: 'https://github.com/Talh12/finalProject.git'
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
-      - name: Build Docker Image
-        run: docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
+    - name: Build and push Docker image
+      env:
+        DOCKER_IMAGE: tal5041996/weather-app
+        DOCKER_TAG: latest
+      run: |
+        docker build -t $DOCKER_IMAGE:$DOCKER_TAG ./application
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push $DOCKER_IMAGE:$DOCKER_TAG
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Run tests with docker-compose
+      run: docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit ./application
 
-      - name: Push Docker Image to Docker Hub
-        run: docker push $DOCKER_IMAGE:$DOCKER_TAG
+    - name: Push code to GitHub
+      env:
+        FEATURE_BRANCH: feature-branch
+        REPO_URL: https://github.com/Talh12/finalProject.git
+      run: |
+        git config --global user.email "halias32236@gmail.com"
+        git config --global user.name "Talh12"
+        git remote set-url origin $REPO_URL
+        git checkout -b $FEATURE_BRANCH
+        git add .
+        git commit -m "Automated commit by GitHub Actions"
+        git push origin $FEATURE_BRANCH
 
-      - name: Run Tests with Docker Compose
-        run: docker-compose up --build --abort-on-container-exit
-
-      - name: Configure Git
-        run: |
-          git config --global user.email "halias32236@gmail.com"
-          git config --global user.name "Talh12"
-
-      - name: Push Code to GitHub
-        run: |
-          git remote set-url origin $REPO_URL
-          git checkout -b $FEATURE_BRANCH
-          git add .
-          git commit -m "Automated commit by GitHub Actions"
-          git push origin $FEATURE_BRANCH
-
-      - name: Create Pull Request
-        run: |
-          hub pull-request -b $MAIN_BRANCH -h $FEATURE_BRANCH -m "Automated PR by GitHub Actions"
+    - name: Create Pull Request
+      env:
+        MAIN_BRANCH: main
+        FEATURE_BRANCH: feature-branch
+      run: hub pull-request -b $MAIN_BRANCH -h $FEATURE_BRANCH -m "Automated PR by GitHub Actions"
