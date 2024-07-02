@@ -4,17 +4,14 @@ metadata:
   name: jenkins-agent-pod
 spec:
   containers:
-    - name: ez-docker-helm-build
-      image: ezezeasy/ez-docker-helm-build:1.41
-      imagePullPolicy: Always
+    - name: dind
+      image: drpsychick/dind-buildx-helm
       securityContext:
         privileged: true
       volumeMounts:
-        - name: docker-socket
-          mountPath: /var/run/docker.sock
-
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
   volumes:
     - name: docker-socket
       hostPath:
-        path: Users/tal_halias/.docker/run/docker.sock
-        type: Socket
+        path: /var/run/docker.sock
