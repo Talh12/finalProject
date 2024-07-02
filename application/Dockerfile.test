@@ -11,13 +11,13 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code
-COPY /app .
+COPY app .
 
 # Copy the test file
 COPY test_main.py .
 
-# Expose the port the app runs on
+# Expose the port (if needed, but typically not necessary for testing)
 EXPOSE 8081
 
-# Run the tests
+# Command to run the tests
 CMD ["pytest", "test_main.py"]

@@ -24,7 +24,8 @@ def test_get_weather_by_city(mock_get):
     api_key = 'fake_api_key'
     result = get_weather_by_city(city, api_key)
 
-    mock_get.assert_called_once_with(f'http://api.openweathermap.org/data/2.5/weather?appid={api_key}&q={city}')
+    # Check that the get method was called with the base URL and parameters
+    mock_get.assert_called_once_with('http://api.openweathermap.org/data/2.5/weather', params={"q": city, "appid": api_key})
     assert result == weather_data_example
 
 # Test get_temperature function

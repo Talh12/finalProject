@@ -1,4 +1,0 @@
-apiVersion: v2
-name: weather-app
-description: A Helm chart for deploying weather_app Flask application
-version: 0.1.0
