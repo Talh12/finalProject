@@ -79,9 +79,7 @@ pipeline {
 
     post {
         always {
-            node { // Ensuring cleanWs runs within a node block
-                cleanWs()
-            }
+            cleanWs()
         }
     }
 }
