@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            label 'dind-agent'
+            yamlFile 'jenkins-agent.yaml'
+            defaultContainer 'ez-docker-helm-build'
+        }
+    }
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('docker-cred') 
