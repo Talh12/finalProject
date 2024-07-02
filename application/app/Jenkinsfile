@@ -1,43 +1,46 @@
 pipeline {
     agent {
         kubernetes {
+            inheritFrom 'dind-agent'
             yamlFile 'application/jenkins-agent.yaml'
-            defaultContainer 'dind' // Assuming 'jenkins' is your main Jenkins container
+            defaultContainer 'dind'
         }
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-cred') 
-        GITHUB_CREDENTIALS = credentials('tal-github')       
-        DOCKER_IMAGE = 'tal5041996/weather-app'             
-        DOCKER_TAG = 'latest'                                           
-        FEATURE_BRANCH = 'feature-branch'                               
-        MAIN_BRANCH = 'main'                                            
-        REPO_URL = 'https://github.com/Talh12/finalProject.git'     
+        DOCKERHUB_CREDENTIALS = credentials('docker-cred')
+        GITHUB_CREDENTIALS = credentials('tal-github')
+        DOCKER_IMAGE = 'tal5041996/weather-app'
+        DOCKER_TAG = 'latest'
+        FEATURE_BRANCH = 'feature-branch'
+        MAIN_BRANCH = 'main'
+        REPO_URL = 'https://github.com/Talh12/finalProject.git'
     }
 
     stages {
-        stage('Checkout code') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                container('dind') {
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                script {
+                    try {
+                        docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                    } catch (Exception e) {
+                        echo "Failed to build Docker image: ${e.message}"
+                        error "Build failed"
+                    }
                 }
             }
         }
 
         stage('Push Docker Image to Docker Hub') {
             steps {
-                container('dind') {
-                    script {
+                script {
+                    try {
                         docker.withRegistry('https://docker.io', DOCKERHUB_CREDENTIALS) {
                             docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
                         }
+                    } catch (Exception e) {
+                        echo "Failed to push Docker image to Docker Hub: ${e.message}"
+                        error "Push failed"
                     }
                 }
             }
@@ -45,35 +48,48 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                container('dind') {
-                    sh 'docker-compose up --build --abort-on-container-exit'
+                script {
+                    try {
+                        sh 'docker-compose up --build --abort-on-container-exit'
+                    } catch (Exception e) {
+                        echo "Tests failed: ${e.message}"
+                        error "Tests failed"
+                    }
                 }
             }
         }
 
         stage('Push Code to GitHub') {
             steps {
-                container('dind') {
-                    sh """
-                    git config --global user.email "halias32236@gmail.com"
-                    git config --global user.name "Talh12"
-                    git remote set-url origin ${REPO_URL}
-                    git checkout -b ${FEATURE_BRANCH}
-                    git add .
-                    git commit -m "Automated commit by Jenkins"
-                    git push origin ${FEATURE_BRANCH}
-                    """
+                script {
+                    try {
+                        sh """
+                        git config --global user.email "halias32236@gmail.com"
+                        git config --global user.name "Talh12"
+                        git remote set-url origin ${REPO_URL}
+                        git checkout -b ${FEATURE_BRANCH}
+                        git add .
+                        git commit -m "Automated commit by Jenkins"
+                        git push origin ${FEATURE_BRANCH}
+                        """
+                    } catch (Exception e) {
+                        echo "Failed to push code to GitHub: ${e.message}"
+                        error "Push failed"
+                    }
                 }
             }
         }
 
         stage('Create Pull Request') {
             steps {
-                container('dind') {
-                    script {
+                script {
+                    try {
                         sh """
                         hub pull-request -b ${MAIN_BRANCH} -h ${FEATURE_BRANCH} -m "Automated PR by Jenkins"
                         """
+                    } catch (Exception e) {
+                        echo "Failed to create pull request: ${e.message}"
+                        error "PR creation failed"
                     }
                 }
             }
