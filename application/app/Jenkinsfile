@@ -2,7 +2,7 @@ pipeline {
     agent {
         kubernetes {
             label 'dind-agent'
-            yamlFile yamlFile 'application/app/jenkins-agent.yaml'
+            yamlFile 'application/app/jenkins-agent.yaml'
             defaultContainer 'dind'
         }
     }
@@ -18,7 +18,7 @@ pipeline {
     }
 
     stages {
-        stage("Checkout code") {
+        stage('Checkout code') {
             steps {
                 container('dind') {
                     checkout scm
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 container('dind') {
                     script {
-                        docker.withRegistry('https://docker.io', 'DOCKERHUB_CREDENTIALS') {
+                        docker.withRegistry('https://docker.io', DOCKERHUB_CREDENTIALS) {
                             docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
                         }
                     }
@@ -95,4 +95,3 @@ pipeline {
         }
     }
 }
-
