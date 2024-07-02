@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            label 'dind-agent'
+            inheritFrom 'dind-agent' // Use inheritFrom instead of label
             yamlFile 'application/jenkins-agent.yaml'
             defaultContainer 'dind'
         }
@@ -80,6 +80,7 @@ pipeline {
     post {
         always {
             echo 'Finished pushing changes to GitHub'
+            cleanWs()
         }
     }
 }
