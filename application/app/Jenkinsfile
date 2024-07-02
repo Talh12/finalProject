@@ -12,9 +12,9 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage("Checkout code") {
             steps {
-                git branch: "${FEATURE_BRANCH}", url: "${REPO_URL}"
+                checkout scm
             }
         }
 
@@ -77,3 +77,4 @@ pipeline {
         }
     }
 }
+
