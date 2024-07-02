@@ -1,29 +1,23 @@
 pipeline {
     agent {
         kubernetes {
-            inheritFrom 'dind-agent' // Use inheritFrom instead of label
+            inheritFrom 'dind-agent'
             yamlFile 'application/jenkins-agent.yaml'
             defaultContainer 'dind'
         }
-    } 
+    }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-cred') 
-        GITHUB_CREDENTIALS = credentials('tal-github')       
-        DOCKER_IMAGE = 'tal5041996/weather-app'             
-        DOCKER_TAG = 'latest'                                           
-        FEATURE_BRANCH = 'feature-branch'                               
-        MAIN_BRANCH = 'main'                                            
-        REPO_URL = 'https://github.com/Talh12/finalProject.git'     
+        DOCKERHUB_CREDENTIALS = credentials('docker-cred')
+        GITHUB_CREDENTIALS = credentials('tal-github')
+        DOCKER_IMAGE = 'tal5041996/weather-app'
+        DOCKER_TAG = 'latest'
+        FEATURE_BRANCH = 'feature-branch'
+        MAIN_BRANCH = 'main'
+        REPO_URL = 'https://github.com/Talh12/finalProject.git'
     }
 
     stages {
-        stage("Checkout code") {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
