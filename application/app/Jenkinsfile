@@ -85,7 +85,7 @@ def gitActions() {
 }
 
 def createPullRequest() {
-    // Create pull request using 'hub' command
+   
     sh """
     hub pull-request -b ${MAIN_BRANCH} -h ${FEATURE_BRANCH} -m "Automated PR by Jenkins"
     """
