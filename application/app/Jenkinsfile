@@ -8,14 +8,14 @@ pipeline {
     } 
 
     environment {
-        // Define environment variables using 'env'
-        env.DOCKERHUB_CREDENTIALS = credentials('docker-cred') 
-        env.GITHUB_CREDENTIALS = credentials('tal-github')       
-        env.DOCKER_IMAGE = 'tal5041996/weather-app'             
-        env.DOCKER_TAG = 'latest'                                           
-        env.FEATURE_BRANCH = 'feature-branch'                               
-        env.MAIN_BRANCH = 'main'                                            
-        env.REPO_URL = 'https://github.com/Talh12/finalProject.git'     
+        
+        DOCKERHUB_CREDENTIALS = credentials('docker-cred') 
+        GITHUB_CREDENTIALS = credentials('tal-github')       
+        DOCKER_IMAGE = 'tal5041996/weather-app'             
+        DOCKER_TAG = 'latest'                                           
+        FEATURE_BRANCH = 'feature-branch'                               
+        MAIN_BRANCH = 'main'                                            
+        REPO_URL = 'https://github.com/Talh12/finalProject.git'     
     }
 
     stages {
