@@ -79,7 +79,10 @@ pipeline {
 
     post {
         always {
-            deleteDir()
+            node {
+                label 'dind-agent'
+                deleteDir()
+            }
         }
     }
 }
