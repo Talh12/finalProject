@@ -17,7 +17,7 @@ pipeline {
         REPO_URL = 'https://github.com/Talh12/finalProject.git'
     }
 
-
+    stages {
         stage('Build Docker Image') {
             steps {
                 script {
@@ -68,6 +68,12 @@ pipeline {
                     """
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
         }
     }
 }
