@@ -2,7 +2,7 @@ pipeline {
     agent {
         kubernetes {
             label 'dind-agent'
-            yamlFile 'application/jenkins-agent.yaml'
+            yamlFile 'jenkins-agent.yaml'
             defaultContainer 'dind'
         }
     }
