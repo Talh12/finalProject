@@ -1,83 +1,42 @@
 pipeline {
     agent {
         kubernetes {
-            label 'docker'  // Ensure your Jenkins agent is labeled with 'docker'
-            defaultContainer 'dind'  // Default container specified in your YAML
-            yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-  name: jenkins-agent-pod
-spec:
-  containers:
-    - name: dind
-      image: drpsychick/dind-buildx-helm
-      imagePullPolicy: Always
-      securityContext:
-        privileged: true
-      resources:
-        requests:
-          memory: "2Gi"
-          cpu: "1"
-        limits:
-          memory: "4Gi"
-          cpu: "2"
-
-    - name: python-test
-      image: python:3.9-slim
-      command: ["sleep"]
-      args: ["infinity"]
-      imagePullPolicy: Always
-      securityContext:
-        privileged: false
-
-    - name: docker-compose
-      image: docker/compose:latest
-      command: ["sleep"]
-      args: ["infinity"]
-      imagePullPolicy: Always
-      securityContext:
-        privileged: true
-      volumeMounts:
-        - name: docker-socket
-          mountPath: /var/run/docker.sock
-
-  volumes:
-    - name: docker-socket
-      hostPath:
-        path: /var/run/docker.sock
-        type: Socket
-"""
+            label 'dind-agent'
+            yamlFile 'jenkins-agent.yaml'
+            defaultContainer 'ez-docker-helm-build'
         }
     }
-
+    
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-cred')  // Replace with your Docker Hub credentials ID
-        REPO_URL = 'https://github.com/Talh12/finalProject.git'
+        DOCKERHUB_CREDENTIALS = credentials('docker-cred')
+        GITHUB_CREDENTIALS = credentials('tal-github')
         DOCKER_IMAGE = 'tal5041996/weather-app'
         DOCKER_TAG = 'latest'
         FEATURE_BRANCH = 'feature-branch'
         MAIN_BRANCH = 'main'
+        REPO_URL = 'https://github.com/Talh12/finalProject.git'
     }
 
     stages {
+        stage("Checkout code") {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
-                container('dind') {
-                    script {
-                        docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                    }
+                script {
+                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
                 }
             }
         }
 
         stage('Push Docker Image to Docker Hub') {
             steps {
-                container('dind') {
-                    script {
-                        docker.withRegistry('https://docker.io', DOCKERHUB_CREDENTIALS) {
-                            docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
-                        }
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
                     }
                 }
             }
@@ -85,40 +44,34 @@ spec:
 
         stage('Run Tests') {
             steps {
-                container('docker-compose') {
-                    script {
-                        sh 'docker-compose up --build --abort-on-container-exit'
-                    }
+                script {
+                    sh 'docker-compose up --build --abort-on-container-exit'
                 }
             }
         }
 
         stage('Push Code to GitHub') {
             steps {
-                container('dind') {
-                    script {
-                        sh """
-                        git config --global user.email "halias32236@gmail.com"
-                        git config --global user.name "Talh12"
-                        git remote set-url origin ${REPO_URL}
-                        git checkout -b ${FEATURE_BRANCH}
-                        git add .
-                        git commit -m "Automated commit by Jenkins"
-                        git push origin ${FEATURE_BRANCH}
-                        """
-                    }
+                script {
+                    sh """
+                    git config --global user.email "halias32236@gmail.com"
+                    git config --global user.name "Talh12"
+                    git remote set-url origin ${REPO_URL}
+                    git checkout -b ${FEATURE_BRANCH}
+                    git add .
+                    git commit -m "Automated commit by Jenkins"
+                    git push origin ${FEATURE_BRANCH}
+                    """
                 }
             }
         }
 
         stage('Create Pull Request') {
             steps {
-                container('dind') {
-                    script {
-                        sh """
-                        hub pull-request -b ${MAIN_BRANCH} -h ${FEATURE_BRANCH} -m "Automated PR by Jenkins"
-                        """
-                    }
+                script {
+                    sh """
+                    hub pull-request -b ${MAIN_BRANCH} -h ${FEATURE_BRANCH} -m "Automated PR by Jenkins"
+                    """
                 }
             }
         }
@@ -126,8 +79,7 @@ spec:
 
     post {
         always {
-            echo 'Finished pushing changes to GitHub'
-            cleanWs()  // Ensure Jenkins can clean up the workspace
+            cleanWs()
         }
     }
 }

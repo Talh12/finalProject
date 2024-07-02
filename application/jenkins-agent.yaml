@@ -4,31 +4,8 @@ metadata:
   name: jenkins-agent-pod
 spec:
   containers:
-    - name: dind
-      image: drpsychick/dind-buildx-helm
-      imagePullPolicy: Always
-      securityContext:
-        privileged: true
-      resources:
-        requests:
-          memory: "2Gi"
-          cpu: "1"
-        limits:
-          memory: "4Gi"
-          cpu: "2"
-
-    - name: python-test
-      image: python:3.9-slim
-      command: ["sleep"]
-      args: ["infinity"]
-      imagePullPolicy: Always
-      securityContext:
-        privileged: false
-
-    - name: docker-compose
-      image: docker/compose:latest
-      command: ["sleep"]
-      args: ["infinity"]
+    - name: ez-docker-helm-build
+      image: ezezeasy/ez-docker-helm-build:1.41
       imagePullPolicy: Always
       securityContext:
         privileged: true
