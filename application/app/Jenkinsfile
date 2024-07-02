@@ -1,39 +1,48 @@
 pipeline {
     agent {
-        jenkins-agent-pod
-    } 
-
+        kubernetes {
+            label 'dind-agent'
+            yamlFile 'jenkins-agent.yaml'
+            defaultContainer 'dind'
+        }
+    }
     
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-cred') 
-        GITHUB_CREDENTIALS = credentials('tal-github')       
-        DOCKER_IMAGE = 'tal5041996/weather-app'             
-        DOCKER_TAG = 'latest'                                           
-        FEATURE_BRANCH = 'feature-branch'                               
-        MAIN_BRANCH = 'main'                                            
-        REPO_URL = 'https://github.com/Talh12/finalProject.git'     
+        DOCKERHUB_CREDENTIALS = credentials('docker-cred')
+        GITHUB_CREDENTIALS = credentials('tal-github')
+        DOCKER_IMAGE = 'tal5041996/weather-app'
+        DOCKER_TAG = 'latest'
+        FEATURE_BRANCH = 'feature-branch'
+        MAIN_BRANCH = 'main'
+        REPO_URL = 'https://github.com/Talh12/finalProject.git'
     }
 
     stages {
         stage("Checkout code") {
             steps {
-                checkout scm
+                container('dind') {
+                    checkout scm
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                container('dind') {
+                    script {
+                        docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                    }
                 }
             }
         }
 
         stage('Push Docker Image to Docker Hub') {
             steps {
-                script {
-                    docker.withRegistry('https://docker.io', 'DOCKERHUB_CREDENTIALS') {
-                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                container('dind') {
+                    script {
+                        docker.withRegistry('https://docker.io', 'DOCKERHUB_CREDENTIALS') {
+                            docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                        }
                     }
                 }
             }
@@ -41,34 +50,40 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                script {
-                    sh 'docker-compose up --build --abort-on-container-exit'
+                container('docker-compose') {
+                    script {
+                        sh 'docker-compose up --build --abort-on-container-exit'
+                    }
                 }
             }
         }
 
         stage('Push Code to GitHub') {
             steps {
-                script {
-                    sh """
-                    git config --global user.email "halias32236@gmail.com"
-                    git config --global user.name "Talh12"
-                    git remote set-url origin ${REPO_URL}
-                    git checkout -b ${FEATURE_BRANCH}
-                    git add .
-                    git commit -m "Automated commit by Jenkins"
-                    git push origin ${FEATURE_BRANCH}
-                    """
+                container('dind') {
+                    script {
+                        sh """
+                        git config --global user.email "halias32236@gmail.com"
+                        git config --global user.name "Talh12"
+                        git remote set-url origin ${REPO_URL}
+                        git checkout -b ${FEATURE_BRANCH}
+                        git add .
+                        git commit -m "Automated commit by Jenkins"
+                        git push origin ${FEATURE_BRANCH}
+                        """
+                    }
                 }
             }
         }
 
         stage('Create Pull Request') {
             steps {
-                script {
-                    sh """
-                    hub pull-request -b ${MAIN_BRANCH} -h ${FEATURE_BRANCH} -m "Automated PR by Jenkins"
-                    """
+                container('dind') {
+                    script {
+                        sh """
+                        hub pull-request -b ${MAIN_BRANCH} -h ${FEATURE_BRANCH} -m "Automated PR by Jenkins"
+                        """
+                    }
                 }
             }
         }
@@ -80,3 +95,4 @@ pipeline {
         }
     }
 }
+
