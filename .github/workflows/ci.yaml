@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - feature-branch
+      - feature
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
 
     - name: Push code to GitHub
       env:
-        FEATURE_BRANCH: feature-branch
+        FEATURE_BRANCH: feature
         REPO_URL: https://github.com/Talh12/finalProject.git
       run: |
         git config --global user.email "halias32236@gmail.com"
@@ -44,5 +44,5 @@ jobs:
     - name: Create Pull Request
       env:
         MAIN_BRANCH: main
-        FEATURE_BRANCH: feature-branch
+        FEATURE_BRANCH: feature
       run: hub pull-request -b $MAIN_BRANCH -h $FEATURE_BRANCH -m "Automated PR by GitHub Actions"
