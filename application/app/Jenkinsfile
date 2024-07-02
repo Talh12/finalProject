@@ -2,7 +2,7 @@ pipeline {
     agent {
         kubernetes {
             label 'dind-agent'
-            yamlFile 'application/jenkins-agent.yaml'
+            yamlFile 'jenkins-agent.yaml'
             defaultContainer 'ez-docker-helm-build'
         }
     }
@@ -79,7 +79,9 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            node {
+                cleanWs()
+            }
         }
     }
 }
