@@ -68,9 +68,8 @@ pipeline {
                             git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app
                             git config --global user.email "jenkins@yourcompany.com"
                             git config --global user.name "Jenkins"
-                            git fetch origin
-                            git checkout ${FEATURE_BRANCH}
-                            git add -A
+                            git fetch https://${USERNAME}:${PASSWORD}@github.com/Talh12/finalProject.git
+                            git add .
                             git commit -m "Update image tag to ${VERSION}"
                             git push origin ${FEATURE_BRANCH}
                         '''
