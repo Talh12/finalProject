@@ -10,7 +10,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'tal5041996/weather-app'
         DOCKERHUB_CREDENTIALS = 'docker-cred'
-        GITHUB_CREDENTIALS = 'tal-github'
+        GITHUB_CREDENTIALS = 'github-token'
         DOCKER_TAG = 'latest'
         FEATURE_BRANCH = 'feature'
         REPO_URL = 'https://github.com/Talh12/finalProject.git'
@@ -56,7 +56,7 @@ pipeline {
         stage('Push Changes to GitLab') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'tal-github', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh '''
                             git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app
                             git config --global user.email "halias32236@gmail.com"
