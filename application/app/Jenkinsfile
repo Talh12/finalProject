@@ -15,13 +15,20 @@ pipeline {
         FEATURE_BRANCH = 'feature'
         REPO_URL = 'https://github.com/Talh12/finalProject.git'
         APPLICATION_DIR = 'application'
+        VERSION = "${env.BUILD_NUMBER}"
     }
 
     stages {
-        stage('Build Docker Image') {
+        stage("Checkout code") {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage("Build Docker image") {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
+                    def dockerImage = docker.build("${DOCKER_IMAGE}:${VERSION}", "--no-cache .")
                 }
             }
         }
@@ -30,7 +37,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                        docker.image("${DOCKER_IMAGE}:${VERSION}").push()
                     }
                 }
             }
@@ -53,17 +60,18 @@ pipeline {
             }
         }
 
-        stage('Push Changes to GitLab') {
+        stage('Push Changes to GitHub') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                         sh '''
                             git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app
-                            git config --global user.email "halias32236@gmail.com"
-                            git config --global user.name "Talh12"
-                            git fetch --all
+                            git config --global user.email "jenkins@yourcompany.com"
+                            git config --global user.name "Jenkins"
+                            git fetch origin
+                            git checkout ${FEATURE_BRANCH}
                             git add -A
-                            git commit -m "Automated commit by Jenkins"
+                            git commit -m "Update image tag to ${VERSION}"
                             git push origin ${FEATURE_BRANCH}
                         '''
                     }
