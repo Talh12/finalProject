@@ -45,7 +45,7 @@ pipeline {
             }
         }
 
-        stage('Push Code to GitHub') {
+        stage('Merge Feature Branch into Main and Push') {
             steps {
                 script {
                     try {
@@ -62,16 +62,19 @@ pipeline {
                         // Checkout to main branch
                         sh "git checkout ${MAIN_BRANCH}"
 
+                        // Merge feature branch into main
+                        sh "git merge ${FEATURE_BRANCH}"
+
                         // Add all files and commit
                         sh "git add -A"
-                        sh 'git commit -m "Automated commit by Jenkins"'
+                        sh 'git commit -m "Merge ${FEATURE_BRANCH} into ${MAIN_BRANCH} by Jenkins"'
 
                         // Push changes to GitHub main branch
                         sh "git push origin ${MAIN_BRANCH}"
                     } catch (Exception e) {
-                        echo "Failed to push changes to GitHub: ${e.message}"
+                        echo "Failed to merge and push changes to GitHub: ${e.message}"
                         currentBuild.result = 'FAILURE'
-                        error("Failed to push changes to GitHub")
+                        error("Failed to merge and push changes to GitHub")
                     }
                 }
             }
