@@ -40,7 +40,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yml up --build --abort-on-container-exit"
+                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
                 }
             }
         }
