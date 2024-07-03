@@ -52,20 +52,27 @@ pipeline {
                     sh 'git config --global user.email "halias32236@gmail.com"'
                     sh 'git config --global user.name "Talh12"'
 
-                    // Fetch latest changes from remote
+                    // Fetch latest changes from the remote repository
                     sh 'git fetch origin "+refs/heads/*:refs/remotes/origin/*"'
 
                     // Checkout the feature branch
                     sh "git checkout --track origin/${FEATURE_BRANCH}"
 
-                    // Add all changes
+                    // Add all changes (including deleted files)
                     sh 'git add -A'
 
-                    // Commit changes
-                    sh 'git commit -m "Automated commit by Jenkins"'
+                    // Check if there are changes to commit
+                    def gitStatus = sh(script: 'git status --porcelain', returnStdout: true).trim()
 
-                    // Push changes to the feature branch
-                    sh "git push origin ${FEATURE_BRANCH}"
+                    if (gitStatus != "") {
+                        // Commit changes
+                        sh 'git commit -m "Automated commit by Jenkins"'
+
+                        // Push changes to the feature branch
+                        sh "git push origin ${FEATURE_BRANCH}"
+                    } else {
+                        echo 'No changes to commit.'
+                    }
                 }
             }
         }
