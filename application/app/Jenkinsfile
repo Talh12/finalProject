@@ -14,7 +14,7 @@ pipeline {
         DOCKER_TAG = 'latest'
         FEATURE_BRANCH = 'feature'
         MAIN_BRANCH = 'main'
-        REPO_URL = 'https://github.com/Talh12/finalProject'
+        REPO_URL = 'https://github.com/Talh12/finalProject.git'
     }
 
     stages {
