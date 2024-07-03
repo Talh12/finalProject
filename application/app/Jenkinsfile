@@ -16,7 +16,6 @@ pipeline {
         REPO_URL = 'https://github.com/Talh12/finalProject.git'
         APPLICATION_DIR = 'application'
         VERSION = "${env.BUILD_NUMBER}"
-
     }
 
     stages {
@@ -26,8 +25,6 @@ pipeline {
             }
         }
 
-
-    stages {
         stage('Build Docker Image') {
             steps {
                 script {
@@ -63,7 +60,7 @@ pipeline {
             }
         }
 
-        stage('Push Changes to GitLab') {
+        stage('Push Changes to GitHub') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
