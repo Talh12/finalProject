@@ -10,18 +10,25 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'tal5041996/weather-app'
         DOCKERHUB_CREDENTIALS = 'docker-cred'
-        GITHUB_CREDENTIALS = 'tal-github'
+        GITHUB_CREDENTIALS = 'github-token'
         DOCKER_TAG = 'latest'
         FEATURE_BRANCH = 'feature'
         REPO_URL = 'https://github.com/Talh12/finalProject.git'
         APPLICATION_DIR = 'application'
+        VERSION = "${env.BUILD_NUMBER}"
     }
 
     stages {
+        stage("Checkout code") {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
+                    docker.build("${DOCKER_IMAGE}:${VERSION}", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
                 }
             }
         }
@@ -30,7 +37,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                        docker.image("${DOCKER_IMAGE}:${VERSION}").push()
                     }
                 }
             }
@@ -44,35 +51,44 @@ pipeline {
             }
         }
 
+        stage('Debug Working Directory') {
+            steps {
+                script {
+                    sh 'pwd'
+                    sh 'ls -la'
+                }
+            }
+        }
+
         stage('Check and Push Changes to Feature Branch') {
             steps {
                 script {
-                    sh """
-                    git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app
-                    git config --global user.email "halias32236@gmail.com"
-                    git config --global user.name "Talh12"
-                    git fetch origin '+refs/heads/*:refs/remotes/origin/*'
-                    
-                    
-                    if git show-ref --quiet refs/heads/${FEATURE_BRANCH}; then
-                        echo "Branch ${FEATURE_BRANCH} exists locally."
-                    else
-                        echo "Branch ${FEATURE_BRANCH} does not exist locally. Creating branch."
-                        git checkout -b ${FEATURE_BRANCH} origin/${FEATURE_BRANCH} || git checkout -b ${FEATURE_BRANCH}
-                    fi
-                    
-                   
-                    git checkout ${FEATURE_BRANCH}
+                    // Configure Git settings
+                    sh 'git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app'
+                    sh 'git config --global user.email "halias32236@gmail.com"'
+                    sh 'git config --global user.name "Talh12"'
 
-                    
-                    if [ -n "\$(git status --porcelain)" ]; then
-                        git add -A
-                        git commit -m "Update ${FEATURE_BRANCH} by Jenkins"
-                        git push origin ${FEATURE_BRANCH}
-                    else
-                        echo "No changes to commit."
-                    fi
-                    """
+                    // Fetch latest changes from the remote repository
+                    sh 'git fetch origin "+refs/heads/*:refs/remotes/origin/*"'
+
+                    // Checkout the feature branch
+                    sh "git checkout --track origin/${FEATURE_BRANCH}"
+
+                    // Add all changes (including deleted files)
+                    sh 'git add -A'
+
+                    // Check if there are changes to commit
+                    def gitStatus = sh(script: 'git status --porcelain', returnStdout: true).trim()
+
+                    if (gitStatus != "") {
+                        // Commit changes
+                        sh 'git commit -m "Automated commit by Jenkins"'
+
+                        // Push changes to the feature branch
+                        sh "git push origin ${FEATURE_BRANCH}"
+                    } else {
+                        echo 'No changes to commit.'
+                    }
                 }
             }
         }
