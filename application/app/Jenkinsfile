@@ -61,7 +61,7 @@ pipeline {
                             git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app
                             git config --global user.email "halias32236@gmail.com"
                             git config --global user.name "Talh12"
-                            git fetch origin
+                            git fetch --all
                             git add -A
                             git commit -m "Automated commit by Jenkins"
                             git push origin ${FEATURE_BRANCH}
