@@ -53,10 +53,10 @@ pipeline {
                     sh 'git config --global user.name "Talh12"'
 
                     // Fetch changes from the remote repository
-                    sh 'git fetch origin "+refs/heads/*:refs/remotes/origin/*"'
+                    sh 'git fetch origin'
 
-                    // Checkout the feature branch
-                    sh 'git checkout ${FEATURE_BRANCH}'
+                    // Checkout the existing feature branch
+                    sh "git checkout origin/${FEATURE_BRANCH}"
 
                     // Add all changes
                     sh 'git add -A'
