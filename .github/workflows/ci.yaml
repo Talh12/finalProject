@@ -46,7 +46,7 @@ jobs:
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git
           git fetch origin
-          git add .
+          git add -A
           git diff-index --quiet HEAD || git commit -m "Automated commit by GitHub Actions"
           git push origin feature
         env:
