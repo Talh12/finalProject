@@ -1,0 +1,5 @@
+.pytest_cache
+.venv
+add_readme.sh
+dirs.sh
+.DS_Store

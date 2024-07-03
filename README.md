@@ -1,3 +1,5 @@
+# STILL WORKING ON THIS PRJOECT 
+
 # ApiWeatherApp
 This project implements a Python Flask application that leverages an API to retrieve real-time weather data from around the globe. The application provides a user-friendly interface to access weather information conveniently.
 
@@ -199,7 +201,9 @@ To access the Grafana web interface locally, set up port forwarding:
 kubectl port-forward svc/grafana -n observation 3000:80
 ```
 Now, open your web browser and go to http://localhost:3000 to access the Grafana login page. Use admin as the username and the password retrieved earlier to log in.
-### Steps to Install MongoDB
+
+
+# Steps to Install MongoDB
 1. **create databse namespace**
 
 ```
