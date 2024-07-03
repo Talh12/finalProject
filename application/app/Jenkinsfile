@@ -12,9 +12,9 @@ pipeline {
         DOCKERHUB_CREDENTIALS = 'docker-cred'
         GITHUB_CREDENTIALS = 'tal-github'
         DOCKER_TAG = 'latest'
-        FEATURE_BRANCH = 'feature-branch'
+        FEATURE_BRANCH = 'feature'
         MAIN_BRANCH = 'main'
-        REPO_URL = 'https://github.com/Talh12/finalProject.git'
+        REPO_URL = 'https://github.com/Talh12/finalProject'
     }
 
     stages {
