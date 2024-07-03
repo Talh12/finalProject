@@ -59,14 +59,14 @@ pipeline {
                         // Fetch latest changes
                         sh "git fetch origin"
 
-                        // Checkout to feature branch or create if it doesn't exist
-                        sh "git checkout -b ${FEATURE_BRANCH} || git checkout ${FEATURE_BRANCH}"
+                        // Checkout to main branch
+                        sh "git checkout ${MAIN_BRANCH}"
 
                         // Add all files and commit
                         sh "git add -A"
                         sh 'git commit -m "Automated commit by Jenkins"'
 
-                        // Push changes to GitHub
+                        // Push changes to GitHub main branch
                         sh "git push origin ${MAIN_BRANCH}"
                     } catch (Exception e) {
                         echo "Failed to push changes to GitHub: ${e.message}"
@@ -76,8 +76,7 @@ pipeline {
                 }
             }
         }
-
-
+    }
 
     post {
         always {
