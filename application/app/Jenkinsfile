@@ -45,35 +45,21 @@ pipeline {
             }
         }
 
-        stage('Merge Feature Branch into Main and Push') {
+        stage('push changes to github') {
             steps {
                 script {
                     try {
-                        // Ensure Git configurations
+                        
                         sh """
                         git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app
                         git config --global user.email "halias32236@gmail.com"
                         git config --global user.name "Talh12"
+                        git fetch origin '+refs/heads/*:refs/remotes/origin/*'
+                        git checkout -B ${FEATURE_BRANCH} origin/${FEATURE_BRANCH}
+                        git add -A
+                        git commit -m "Automated commit by Jenkins"
+                        git push origin ${MAIN_BRANCH}
                         """
-
-                        // Fetch latest changes including branches
-                        sh "git fetch origin '+refs/heads/*:refs/remotes/origin/*'"
-
-                        // Checkout to main branch
-                        sh "git checkout ${MAIN_BRANCH}"
-
-                        // Track and checkout feature branch from origin if it exists
-                        sh "git checkout -B ${FEATURE_BRANCH} origin/${FEATURE_BRANCH}"
-
-                        // Merge feature branch into main
-                        sh "git merge ${FEATURE_BRANCH}"
-
-                        // Add all files and commit
-                        sh "git add -A"
-                        sh 'git commit -m "Merge ${FEATURE_BRANCH} into ${MAIN_BRANCH} by Jenkins"'
-
-                        // Push changes to GitHub main branch
-                        sh "git push origin ${MAIN_BRANCH}"
                     } catch (Exception e) {
                         echo "Failed to merge and push changes to GitHub: ${e.message}"
                         currentBuild.result = 'FAILURE'
