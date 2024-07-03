@@ -44,27 +44,31 @@ pipeline {
             }
         }
 
-        stage('Debug Working Directory') {
-            steps {
-                script {
-                    sh 'pwd'
-                    sh 'ls -la'
-                }
-            }
-        }
-
         stage('Check and Push Changes to Feature Branch') {
             steps {
                 script {
-                    sh """
-                    git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app
-                    git config --global user.email "halias32236@gmail.com"
-                    git config --global user.name "Talh12"
-                    git fetch origin '+refs/heads/*:refs/remotes/origin/*'
-                    git add -A
-                    git commit -m "automated commit by Jenkins"
-                    git push origin ${FEATURE_BRANCH}
-                    """
+                    // Configure Git user info
+                    sh 'git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app'
+                    sh 'git config --global user.email "halias32236@gmail.com"'
+                    sh 'git config --global user.name "Talh12"'
+
+                    // Fetch changes from the remote repository
+                    sh 'git fetch origin "+refs/heads/*:refs/remotes/origin/*"'
+
+                    // Checkout the feature branch
+                    sh 'git checkout ${FEATURE_BRANCH}'
+
+                    // Add all changes
+                    sh 'git add -A'
+
+                    // Print Git status for debugging
+                    sh 'git status'
+
+                    // Commit changes
+                    sh 'git commit -m "automated commit by Jenkins"'
+
+                    // Push changes to the remote repository
+                    sh 'git push origin ${FEATURE_BRANCH}'
                 }
             }
         }
