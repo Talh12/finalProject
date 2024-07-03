@@ -53,7 +53,7 @@ pipeline {
                     git config --global user.name "Talh12"
                     git fetch origin '+refs/heads/*:refs/remotes/origin/*'
                     
-                    
+                    # Check if feature branch exists locally
                     if git show-ref --quiet refs/heads/${FEATURE_BRANCH}; then
                         echo "Branch ${FEATURE_BRANCH} exists locally."
                     else
@@ -61,12 +61,17 @@ pipeline {
                         git checkout -b ${FEATURE_BRANCH} origin/${FEATURE_BRANCH} || git checkout -b ${FEATURE_BRANCH}
                     fi
                     
-                   
+                    # Switch to feature branch
                     git checkout ${FEATURE_BRANCH}
 
-                    
+                    # Ensure the local branch is up-to-date
+                    git pull origin ${FEATURE_BRANCH}
+
+                    # Force add all files to the staging area
+                    git add -A
+
+                    # Check for changes and push if any
                     if [ -n "\$(git status --porcelain)" ]; then
-                        git add -A
                         git commit -m "Update ${FEATURE_BRANCH} by Jenkins"
                         git push origin ${FEATURE_BRANCH}
                     else
