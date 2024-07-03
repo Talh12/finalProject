@@ -67,7 +67,7 @@ pipeline {
                         sh 'git commit -m "Automated commit by Jenkins"'
 
                         // Push changes to GitHub
-                        sh "git push origin ${FEATURE_BRANCH}"
+                        sh "git push origin ${MAIN_BRANCH}"
                     } catch (Exception e) {
                         echo "Failed to push changes to GitHub: ${e.message}"
                         currentBuild.result = 'FAILURE'
@@ -77,16 +77,7 @@ pipeline {
             }
         }
 
-        stage('Create Pull Request') {
-            steps {
-                script {
-                    sh """
-                    hub pull-request -b ${MAIN_BRANCH} -h ${FEATURE_BRANCH} -m "Automated PR by Jenkins"
-                    """
-                }
-            }
-        }
-    }
+
 
     post {
         always {
