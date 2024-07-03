@@ -56,11 +56,14 @@ pipeline {
                         git config --global user.name "Talh12"
                         """
 
-                        // Fetch latest changes
-                        sh "git fetch origin"
+                        // Fetch latest changes including branches
+                        sh "git fetch origin '+refs/heads/*:refs/remotes/origin/*'"
 
                         // Checkout to main branch
                         sh "git checkout ${MAIN_BRANCH}"
+
+                        // Track and checkout feature branch from origin if it exists
+                        sh "git checkout -B ${FEATURE_BRANCH} origin/${FEATURE_BRANCH}"
 
                         // Merge feature branch into main
                         sh "git merge ${FEATURE_BRANCH}"
