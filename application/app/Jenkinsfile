@@ -48,20 +48,18 @@ pipeline {
         stage('Merge Feature Branch into Main and Push') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: GITHUB_CREDENTIALS, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        sh """
-                        set -x
-                        git config --global user.email "halias32236@gmail.com"
-                        git config --global user.name "Talh12"
-                        git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app
-                        git clone ${REPO_URL} .
-                        git checkout ${MAIN_BRANCH}
-                        git merge origin/${FEATURE_BRANCH}
-                        git add -A
-                        git commit -m "Merge ${FEATURE_BRANCH} into ${MAIN_BRANCH} by Jenkins"
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Talh12/finalProject.git ${MAIN_BRANCH}
-                        """
-                    }
+                    
+                    sh """
+                    git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app
+                    git config --global user.email "halias32236@gmail.com"
+                    git config --global user.name "Talh12"
+                    git fetch origin '+refs/heads/*:refs/remotes/origin/*'
+                    git checkout -B ${MAIN_BRANCH} origin/${MAIN_BRANCH}
+                    git merge ${FEATURE_BRANCH}
+                    git add -A
+                    git commit -m "Merge ${FEATURE_BRANCH} into ${MAIN_BRANCH} by Jenkins"
+                    git push origin ${MAIN_BRANCH}
+                    """
                 }
             }
         }
