@@ -15,23 +15,9 @@ pipeline {
         FEATURE_BRANCH = 'feature'
         REPO_URL = 'https://github.com/Talh12/finalProject.git'
         APPLICATION_DIR = 'application'
-        PROJECT_DIR = 'finalProject' // New environment variable for project directory
     }
 
     stages {
-        stage('Set Workspace Directory') {
-            steps {
-                dir("${PROJECT_DIR}") {
-                    // Now all subsequent steps will execute in the 'finalProject' directory
-                    // Commands inside this block will execute in the "${PROJECT_DIR}" directory
-                    // For example:
-                    sh 'git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app'
-                    sh 'git config --global user.email "halias32236@gmail.com"'
-                    sh 'git config --global user.name "Talh12"'
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
@@ -61,16 +47,25 @@ pipeline {
         stage('Check and Push Changes to Feature Branch') {
             steps {
                 script {
-                    dir("${PROJECT_DIR}") {
-                        // Now executing Git operations within the 'application' directory of 'finalProject'
-                        sh """
-                        git fetch origin '+refs/heads/*:refs/remotes/origin/*'
-                        git checkout --track origin/${FEATURE_BRANCH}
-                        git add -A
-                        git commit -m "automated commit by Jenkins"
-                        git push origin ${FEATURE_BRANCH}
-                        """
-                    }
+                    // Configure Git settings
+                    sh 'git config --global --add safe.directory /home/jenkins/agent/workspace/weather-app'
+                    sh 'git config --global user.email "halias32236@gmail.com"'
+                    sh 'git config --global user.name "Talh12"'
+
+                    // Fetch latest changes from remote
+                    sh 'git fetch origin "+refs/heads/*:refs/remotes/origin/*"'
+
+                    // Checkout the feature branch
+                    sh "git checkout --track origin/${FEATURE_BRANCH}"
+
+                    // Add all changes
+                    sh 'git add -A'
+
+                    // Commit changes
+                    sh 'git commit -m "Automated commit by Jenkins"'
+
+                    // Push changes to the feature branch
+                    sh "git push origin ${FEATURE_BRANCH}"
                 }
             }
         }
